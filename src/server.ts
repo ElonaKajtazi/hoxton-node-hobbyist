@@ -25,6 +25,28 @@ app.get("/users/:id", async (req, res) => {
     res.status(404).send({ error: "User not found" });
   }
 });
+app.post("/users", async (req, res) => {
+  const errors: string[] = [];
+
+  if (typeof req.body.name !== "string") {
+    errors.push("Name not provided or not a string");
+  }
+  if (typeof req.body.photo !== "string") {
+    errors.push("Photo not provided or not a string");
+  }
+  if (typeof req.body.email !== "string") {
+    errors.push("Email not provided or not a string");
+  }
+
+  if (errors.length === 0) {
+    const user = await prisma.user.create({
+      data: req.body,
+    });
+    res.send(user);
+  } else {
+    res.status(400).send({ errors });
+  }
+});
 app.get("/hobbies", async (req, res) => {
   const hobbies = await prisma.hobby.findMany({ include: { user: true } });
   res.send(hobbies);
@@ -41,7 +63,31 @@ app.get("/hobbies/:id", async (req, res) => {
     res.status(404).send({ error: "Hobby not found" });
   }
 });
+app.post("/hobbies", async (req, res) => {
+  const errors: string[] = [];
 
+  if (typeof req.body.name !== "string") {
+    errors.push("Name not provided or not a string");
+  }
+  if (typeof req.body.image !== "string") {
+    errors.push("Image not provided or not a string");
+  }
+  if (typeof req.body.active !== "boolean") {
+    errors.push("Active status not provided or not a boolean");
+  }
+  if (typeof req.body.userId !== "number") {
+    errors.push("UserId not provided or not a number");
+  }
+
+  if (errors.length === 0) {
+    const hobby = await prisma.hobby.create({
+      data: req.body,
+    });
+    res.send(hobby);
+  } else {
+    res.status(400).send({ errors });
+  }
+});
 app.listen(port, () => {
   console.log(`Listening: http://localhost:${port}`);
 });

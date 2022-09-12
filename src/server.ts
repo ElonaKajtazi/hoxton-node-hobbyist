@@ -41,6 +41,7 @@ app.post("/users", async (req, res) => {
   if (errors.length === 0) {
     const user = await prisma.user.create({
       data: req.body,
+      include: { hobby: true },
     });
     res.send(user);
   } else {
@@ -82,6 +83,7 @@ app.post("/hobbies", async (req, res) => {
   if (errors.length === 0) {
     const hobby = await prisma.hobby.create({
       data: req.body,
+      include: { user: true },
     });
     res.send(hobby);
   } else {

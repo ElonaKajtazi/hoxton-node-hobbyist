@@ -48,6 +48,25 @@ app.post("/users", async (req, res) => {
     res.status(400).send({ errors });
   }
 });
+app.delete("/users/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  const user = await prisma.user.delete({ where: { id } });
+  res.send(user);
+});
+app.patch("/users/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  const user = await prisma.user.update({
+    where: { id },
+    data: req.body,
+    include: { hobby: true },
+  });
+  res.send(user);
+  //   if (user) {
+  //     res.send(user);
+  //   } else {
+  //     res.status(404).send({ error: "User not found" })
+  //   }
+});
 app.get("/hobbies", async (req, res) => {
   const hobbies = await prisma.hobby.findMany({ include: { user: true } });
   res.send(hobbies);
@@ -89,6 +108,25 @@ app.post("/hobbies", async (req, res) => {
   } else {
     res.status(400).send({ errors });
   }
+});
+app.delete("/hobbies/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  const hobby = await prisma.hobby.delete({ where: { id } });
+  res.send(hobby);
+});
+app.patch("/hobbies/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  const hobby = await prisma.hobby.update({
+    where: { id },
+    data: req.body,
+    include: { user: true },
+  });
+  res.send(hobby);
+  //   if (user) {
+  //     res.send(user);
+  //   } else {
+  //     res.status(404).send({ error: "User not found" })
+  //   }
 });
 app.listen(port, () => {
   console.log(`Listening: http://localhost:${port}`);

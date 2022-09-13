@@ -7,14 +7,54 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const port = 5000;
+const port = 4567;
 
 app.get("/users", async (req, res) => {
   const users = await prisma.user.findMany({ include: { hobbies: true } });
   res.send(users);
 });
+app.post("/users", async (req, res) => {
+  // const errors: string[] = [];
+
+  // if (typeof req.body.name !== "string") {
+  //   errors.push("Name not provided or not a string");
+  // }
+  // if (typeof req.body.photo !== "string") {
+  //   errors.push("Photo not provided or not a string");
+  // }
+  // if (typeof req.body.email !== "string") {
+  //   errors.push("Email not provided or not a string");
+  // }
+
+    const userData = {
+      name: req.body.name,
+      photo: req.body.photo,
+      email: req.body.email,
+      hobbies: req.body.hobbies ? req.body.hobbies : []
+    }
+  // if (errors.length === 0) {
+    const user = await prisma.user.create({
+      data: {
+        name:userData.name,
+        photo: userData.photo,
+        email: userData.email,
+        hobbies:{
+          //@ts-ignore
+          connectOrCreate: userData.hobbies.map(hobby => ({
+            where: {name: hobby},
+            create:{name: hobby}
+          }))
+        }
+      },
+      include: { hobbies: true }, 
+    });
+    res.send(user);
+  // } else {
+  //   res.status(400).send({ errors });
+  // }
+});
 app.get("/hobbies", async (req, res) => {
-  const hobbies = await prisma.hobby.findMany({ include: { users: true } });
+  const hobbies = await prisma.hobby.findMany({ include: { users: true } }); 
   res.send(hobbies);
 });
 // app.get("/users/:id", async (req, res) => {
@@ -29,29 +69,7 @@ app.get("/hobbies", async (req, res) => {
 //     res.status(404).send({ error: "User not found" });
 //   }
 // });
-// app.post("/users", async (req, res) => {
-//   const errors: string[] = [];
 
-//   if (typeof req.body.name !== "string") {
-//     errors.push("Name not provided or not a string");
-//   }
-//   if (typeof req.body.photo !== "string") {
-//     errors.push("Photo not provided or not a string");
-//   }
-//   if (typeof req.body.email !== "string") {
-//     errors.push("Email not provided or not a string");
-//   }
-
-//   if (errors.length === 0) {
-//     const user = await prisma.user.create({
-//       data: req.body,
-//       include: { hobby: true },
-//     });
-//     res.send(user);
-//   } else {
-//     res.status(400).send({ errors });
-//   }
-// });
 // app.delete("/users/:id", async (req, res) => {
 //   const id = Number(req.params.id);
 //   const user = await prisma.user.delete({ where: { id } });

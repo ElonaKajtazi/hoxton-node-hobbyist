@@ -12,16 +12,16 @@ datasource db {
 // Trying the implicit relationship
 model User {
 id Int @id @default(autoincrement())
-name String
-photo String
-email String
+name String @unique
+photo String @unique
+email String @unique
 hobbies Hobby[]
 }
 model Hobby {
 id Int @id @default(autoincrement())
-name String
-image String
-active Boolean
+name String @unique
+// image String? @unique
+// active Boolean 
 users User[]
 
 }

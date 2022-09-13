@@ -7,21 +7,21 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./data.db"
+  url      = env("DATABASE_URL")
 }
-
+// Trying the implicit relationship
 model User {
 id Int @id @default(autoincrement())
 name String
 photo String
 email String
-hobby Hobby[]
+hobbies Hobby[]
 }
 model Hobby {
 id Int @id @default(autoincrement())
 name String
 image String
 active Boolean
-user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-userId Int
+users User[]
+
 }

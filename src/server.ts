@@ -26,35 +26,35 @@ app.post("/users", async (req, res) => {
   //   errors.push("Email not provided or not a string");
   // }
 
-    const userData = {
-      name: req.body.name,
-      photo: req.body.photo,
-      email: req.body.email,
-      hobbies: req.body.hobbies ? req.body.hobbies : []
-    }
+  const userData = {
+    name: req.body.name,
+    photo: req.body.photo,
+    email: req.body.email,
+    hobbies: req.body.hobbies ? req.body.hobbies : [],
+  };
   // if (errors.length === 0) {
-    const user = await prisma.user.create({
-      data: {
-        name:userData.name,
-        photo: userData.photo,
-        email: userData.email,
-        hobbies:{
-          //@ts-ignore
-          connectOrCreate: userData.hobbies.map(hobby => ({
-            where: {name: hobby},
-            create:{name: hobby}
-          }))
-        }
+  const user = await prisma.user.create({
+    data: {
+      name: userData.name,
+      photo: userData.photo,
+      email: userData.email,
+      hobbies: {
+        //@ts-ignore
+        connectOrCreate: userData.hobbies.map((hobby) => ({
+          where: { name: hobby },
+          create: { name: hobby },
+        })),
       },
-      include: { hobbies: true }, 
-    });
-    res.send(user);
+    },
+    include: { hobbies: true },
+  });
+  res.send(user);
   // } else {
   //   res.status(400).send({ errors });
   // }
 });
 app.get("/hobbies", async (req, res) => {
-  const hobbies = await prisma.hobby.findMany({ include: { users: true } }); 
+  const hobbies = await prisma.hobby.findMany({ include: { users: true } });
   res.send(hobbies);
 });
 app.get("/users/:id", async (req, res) => {
@@ -83,9 +83,27 @@ app.patch("/users/:id", async (req, res) => {
     include: { hobbies: true },
   });
   res.send(user);
-
 });
 
+app.patch("/addHobbyToUser", async (req, res) => {
+  const userName = req.body.userName;
+  const hobbyName = req.body.hobbyName;
+
+  const user = await prisma.user.update({
+    where: { name: userName },
+    data: {
+      hobbies: {
+        //@ts-ignore
+        connectOrCreate: {
+          where: { name: hobbyName },
+          create: { name: hobbyName },
+        },
+      },
+    },
+    include: { hobbies: true },
+  });
+  res.send(user)
+});
 app.get("/hobbies/:id", async (req, res) => {
   const id = Number(req.params.id);
   const hobby = await prisma.hobby.findUnique({
@@ -129,6 +147,7 @@ app.delete("/hobbies/:id", async (req, res) => {
   const hobby = await prisma.hobby.delete({ where: { id } });
   res.send(hobby);
 });
+
 app.patch("/hobbies/:id", async (req, res) => {
   const id = Number(req.params.id);
   const hobby = await prisma.hobby.update({
@@ -137,7 +156,6 @@ app.patch("/hobbies/:id", async (req, res) => {
     include: { users: true },
   });
   res.send(hobby);
-
 });
 app.listen(port, () => {
   console.log(`Listening: http://localhost:${port}`);
